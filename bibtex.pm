@@ -1,6 +1,21 @@
-#!/usr/bin/perl
-# by Alexandre Dupas
 # Bibtex to simple html
+#
+# Copyright (c) 2008 Alexandre Dupas
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2, or (at your option) any later
+# version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+# 
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
 
 package IkiWiki::Plugin::bibtex;
 
@@ -18,6 +33,7 @@ sub untex ($) {
     $string =~ s/\\\'e/é/g; 
     $string =~ s/\\\`e/è/g;
     $string =~ s/\{\'e\}/é/g;
+    $string =~ s/(\{|\})//g;
     return $string;
 }
 
@@ -56,6 +72,21 @@ sub format_article ($) {
 	     authors => $authors, 
 	     misc => "In $journal, $year" );
 }  # format_article
+
+sub format_book ($) {
+    my $entry = shift;
+
+    my $authors = format_authors $entry->split('author');
+    my $title = format_title untex $entry->get('title');
+    my $publisher = untex $entry->get('publisher');
+    my $year = $entry->get('year');
+
+    # NEEDS_WORK: Should also handle editor, edition, and volume.
+
+    return ( title => $title,
+           authors => $authors,
+           misc => "$year, $publisher" );
+}  # format_book
 
 sub format_inproceedings ($) {
     my $entry = shift;
@@ -155,7 +186,7 @@ sub htmlize (@) { #{{{
     my $page = $params{page};
     my $content = $params{content};
 
-    my $filename = "$page.bib";
+    my $filename = srcfile("$page.bib");
     my ($bibfile, $entry);
 
     my %types = ( article => 0 , 
