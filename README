@@ -1,0 +1,25 @@
+itex
+====
+
+Author: Jason Blevins <jrblevin@sdf.lonestar.org>
+
+Dependencies:
+* itex2MML binary
+
+This plugin is based on the itex2MML plugin for Movable type, written by
+Jacques Distler, which is distributed with the itex2MML source code at:
+<http://golem.ph.utexas.edu/~distler/blog/itex2MML.html>.
+
+
+BibTeX
+======
+
+Author: Alexandre Dupas
+Homepage: <http://alexandre.dupas.free.fr/code/ikiwiki/>
+
+Dependencies:
+* [Text::BibTeX](http://search.cpan.org/dist/Text-BibTeX/)
+
+Templates:
+* `bibfile.tmpl`: Template for listing all entries in a .bib file.
+* `bibentry.tmpl`: Template for listing an individual BibTeX entry.
