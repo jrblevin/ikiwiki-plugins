@@ -49,7 +49,7 @@ sub preprocess_itex (@) {
     } else {
         $itex_pages{$params{page}} = 1;
     }
-    return "test";
+    return '';
 }
 
 # Taken from mdwn plugin and modified to call itex2MML.
