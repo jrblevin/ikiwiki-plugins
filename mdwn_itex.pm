@@ -6,7 +6,7 @@
 # Jason Blevins <jrblevin@sdf.lonestar.org>
 # Chapel Hill, March 16, 2008
 
-package IkiWiki::Plugin::itexmdwn;
+package IkiWiki::Plugin::mdwn_itex;
 
 use warnings;
 use strict;
@@ -18,7 +18,7 @@ my $markdown_sub;
 my %itex_pages;
 
 sub import {
-    hook(type => "getopt", id => "itexmdwn", call => \&getopt);
+    hook(type => "getopt", id => "mdwn_itex", call => \&getopt);
     hook(type => "htmlize", id => "mdwn", call => \&htmlize);
     hook(type => "preprocess", id => "itex", call => \&preprocess_itex);
 }
@@ -39,7 +39,7 @@ sub getopt () {
     # Default settings
     $config{itex2mml} = '/usr/local/bin/itex2MML' unless defined $config{itex2mml};
     $config{itex_num_equations} = 1 unless defined $config{itex_num_equations};
-    $config{itex_default} = 0 unless defined $config{itex_default};
+    $config{itex_default} = 1 unless defined $config{itex_default};
 }
 
 sub preprocess_itex (@) {
@@ -49,7 +49,7 @@ sub preprocess_itex (@) {
     } else {
         $itex_pages{$params{page}} = 1;
     }
-    return "";
+    return "test";
 }
 
 # Taken from mdwn plugin and modified to call itex2MML.
@@ -61,46 +61,9 @@ sub htmlize (@) {
     # Default settings
     $itex_pages{$page} = $config{itex_default} unless defined $itex_pages{$page};
 
-    $content = itex_filter($content) if $itex_pages{$page};
+    $params{content} = itex_filter($content) if $itex_pages{$page};
 
-    if (! defined $markdown_sub) {
-        # Markdown is forked and splintered upstream and can be
-        # available in a variety of incompatible forms. Support
-        # them all.
-        no warnings 'once';
-        $blosxom::version="is a proper perl module too much to ask?";
-        use warnings 'all';
-
-        eval q{use Markdown};
-        if (! $@) {
-            $markdown_sub=\&Markdown::Markdown;
-        } else {
-            eval q{use Text::Markdown};
-            if (! $@) {
-                if (Text::Markdown->can('markdown')) {
-                    $markdown_sub=\&Text::Markdown::markdown;
-                } else {
-                    $markdown_sub=\&Text::Markdown::Markdown;
-                }
-            } else {
-                do "/usr/bin/markdown" ||
-                  error(sprintf(gettext("failed to load Markdown.pm perl module (%s) or /usr/bin/markdown (%s)"), $@, $!));
-                $markdown_sub=\&Markdown::Markdown;
-            }
-        }
-        require Encode;
-    }
-
-    # Workaround for perl bug (#376329)
-    $content=Encode::encode_utf8($content);
-    eval {$content=&$markdown_sub($content)};
-    if ($@) {
-        eval {$content=&$markdown_sub($content)};
-        print STDERR $@ if $@;
-    }
-    $content=Encode::decode_utf8($content);
-
-    return $content;
+    return IkiWiki::Plugin::mdwn::htmlize(%params);
 }
 
 sub itex_filter {
@@ -163,7 +126,7 @@ sub number_equations {
 
 =head1 NAME
 
-Blosxom Plug-in: itex
+ikiwiki Plug-in: mdwn_itex
 
 =head1 SYNOPSIS
 
