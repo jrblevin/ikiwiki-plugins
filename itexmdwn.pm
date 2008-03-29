@@ -39,7 +39,7 @@ sub getopt () {
     # Default settings
     $config{itex2mml} = '/usr/local/bin/itex2MML' unless defined $config{itex2mml};
     $config{itex_num_equations} = 1 unless defined $config{itex_num_equations};
-    $config{itex_default} = 1 unless defined $config{itex_default};
+    $config{itex_default} = 0 unless defined $config{itex_default};
 }
 
 sub preprocess_itex (@) {
