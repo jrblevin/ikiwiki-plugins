@@ -33,24 +33,35 @@ sub getopt () {
         # Enable or disable numbering of \[..\] equations
         "itex_num_equations!" => \$config{num_equations},
         # Process all pages by default or require [[!itex ]] directive?
-        "itex_default" => \$config{itex_default},
+        "itex_default!" => \$config{itex_default},
     );
+
+    # Default settings
+    $config{itex2mml} = '/usr/local/bin/itex2MML' unless defined $config{itex2mml};
+    $config{itex_num_equations} = 1 unless defined $config{itex_num_equations};
+    $config{itex_default} = 1 unless defined $config{itex_default};
 }
 
 sub preprocess_itex (@) {
     my %params = @_;
-    $itex_pages{$params{page}} = 1;
-    return '';
+    if (defined $params{disable}) {
+        $itex_pages{$params{page}} = 0;
+    } else {
+        $itex_pages{$params{page}} = 1;
+    }
+    return "";
 }
 
 # Taken from mdwn plugin and modified to call itex2MML.
 sub htmlize (@) {
     my %params=@_;
     my $content = $params{content};
+    my $page = $params{page};
 
-    if ($config{itex_default} or $itex_pages{$params{page}}) {
-        $content = itex_filter($content)
-    }
+    # Default settings
+    $itex_pages{$page} = $config{itex_default} unless defined $itex_pages{$page};
+
+    $content = itex_filter($content) if $itex_pages{$page};
 
     if (! defined $markdown_sub) {
         # Markdown is forked and splintered upstream and can be
