@@ -14,26 +14,85 @@ use IkiWiki 2.00;
 
 use File::Temp qw(tempfile);
 
+my $markdown_sub;
+my %itex_pages;
+
 sub import {
-        hook(type => "getopt", id => "itex", call => \&getopt);
-        hook(type => "filter", id => "itex", call => \&filter);
+    hook(type => "getopt", id => "itex", call => \&getopt);
+    hook(type => "htmlize", id => "mdwn", call => \&htmlize);
+    hook(type => "preprocess", id => "itex", call => \&preprocess_itex);
 }
 
 sub getopt () {
-        eval q{use Getopt::Long};
-        error($@) if $@;
-        Getopt::Long::Configure('pass_through');
-	GetOptions(
-                "itex2mml=s" => \$config{itex2mml},
-		"itex_num_equations!" => \$config{num_equations},
-	);
+    eval q{use Getopt::Long};
+    error($@) if $@;
+    Getopt::Long::Configure('pass_through');
+    GetOptions(
+        # Location of the itex2mml binary
+        "itex2mml=s" => \$config{itex2mml},
+        # Enable or disable numbering of \[..\] equations
+        "itex_num_equations!" => \$config{num_equations},
+        # Process all pages by default or require [[!itex ]] directive?
+        "itex_default" => \$config{itex_default},
+    );
 }
 
-
-sub filter {
+sub preprocess_itex (@) {
     my %params = @_;
+    $itex_pages{$params{page}} = 1;
+}
 
+# Taken from mdwn plugin and modified to call itex2MML.
+sub htmlize (@) {
+    my %params=@_;
     my $content = $params{content};
+
+    if ($config{itex_default) or $itex_pages{$params{page}}) {
+        $content = itex_filter($content)
+    }
+
+    if (! defined $markdown_sub) {
+        # Markdown is forked and splintered upstream and can be
+        # available in a variety of incompatible forms. Support
+        # them all.
+        no warnings 'once';
+        $blosxom::version="is a proper perl module too much to ask?";
+        use warnings 'all';
+
+        eval q{use Markdown};
+        if (! $@) {
+            $markdown_sub=\&Markdown::Markdown;
+        } else {
+            eval q{use Text::Markdown};
+            if (! $@) {
+                if (Text::Markdown->can('markdown')) {
+                    $markdown_sub=\&Text::Markdown::markdown;
+                } else {
+                    $markdown_sub=\&Text::Markdown::Markdown;
+                }
+            } else {
+                do "/usr/bin/markdown" ||
+                  error(sprintf(gettext("failed to load Markdown.pm perl module (%s) or /usr/bin/markdown (%s)"), $@, $!));
+                $markdown_sub=\&Markdown::Markdown;
+            }
+        }
+        require Encode;
+    }
+
+    # Workaround for perl bug (#376329)
+    $content=Encode::encode_utf8($content);
+    eval {$content=&$markdown_sub($content)};
+    if ($@) {
+        eval {$content=&$markdown_sub($content)};
+        print STDERR $@ if $@;
+    }
+    $content=Encode::decode_utf8($content);
+
+    return $content;
+}
+
+sub itex_filter {
+    my $content = shift;
 
     # Remove carriage returns. itex2MML expects Unix-style lines.
     $content =~ s/\r//g;
@@ -63,18 +122,20 @@ sub number_equations {
 
     # add equation numbers to \[...\]
     #  - introduce a wrapper-<div> and a <span> with the equation number
-    while ($body =~ s/\\\[(.*?)\\\]/\n\n<div class=\"$cls\"><span>\($eqno\)<\/span>\$\$$1\$\$<\/div>\n\n/s) {
-	$eqno++;
-    }
+    while ($body =~ s/\\\[(.*?)\\\]/\n\n<div class=\"$cls\"><span>\($eqno\)<\/span>\$\$$1\$\$<\/div>\n\n/s)
+      {
+          $eqno++;
+      }
 
     # assemble equation labels into a hash
     # - remove the \label{} command, collapse surrounding whitespace
     # - add an ID to the wrapper-<div>. prefix it to give a fighting chance
     #   for the ID to be unique
     # - hash key is the equation label, value is the equation number
-    while ($body =~ s/<div class=\"$cls\"><span>\((\d+)\)<\/span>\$\$((?:[^\$]|\\\$)*)\s*\\label{(\w*)}\s*((?:[^\$]|\\\$)*)\$\$<\/div>/<div class=\"$cls\" id=\"$prefix:$3\"><span>\($1\)<\/span>\$\$$2$4\$\$<\/div>/s) {
-	$eqnumber{"$3"} = $1;
-    }
+    while ($body =~ s/<div class=\"$cls\"><span>\((\d+)\)<\/span>\$\$((?:[^\$]|\\\$)*)\s*\\label{(\w*)}\s*((?:[^\$]|\\\$)*)\$\$<\/div>/<div class=\"$cls\" id=\"$prefix:$3\"><span>\($1\)<\/span>\$\$$2$4\$\$<\/div>/s)
+      {
+          $eqnumber{"$3"} = $1;
+      }
 
     # add cross-references
     # - they can be either (eq:foo) or \eqref{foo}
@@ -86,7 +147,7 @@ sub number_equations {
 
 1
 
-__END__
+  __END__
 
 =head1 NAME
 
