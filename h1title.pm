@@ -40,6 +40,8 @@ sub pagetemplate (@) {
 
 1
 
+__END__
+
 =head1 NAME
 
 ikiwiki Plug-in: h1title
