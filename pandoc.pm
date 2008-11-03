@@ -14,10 +14,14 @@ sub import {
     hook(type => "getsetup", id => "pandoc", call => \&getsetup);
     hook(type => "htmlize", id => $markdown_ext,
          call => sub { htmlize("markdown", @_) });
-    hook(type => "htmlize", id => "tex",
-         call => sub { htmlize("latextex", @_) });
-    hook(type => "htmlize", id => "rst",
-         call => sub { htmlize("rst", @_) });
+    if ($config{pandoc_latex}) {
+        hook(type => "htmlize", id => "tex",
+             call => sub { htmlize("latextex", @_) });
+    }
+    if ($config{pandoc_rst}) {
+        hook(type => "htmlize", id => "rst",
+             call => sub { htmlize("rst", @_) });
+    }
 }
 
 sub getsetup () {
@@ -38,6 +42,20 @@ sub getsetup () {
         example => "mdwn",
         description => "File extension for Markdown files",
         safe => 1,
+        rebuild => 1,
+    },
+    pandoc_latex => {
+        type => "boolean",
+        example => 0,
+        description => "Enable Pandoc processing of LaTeX documents",
+        safe => 0,
+        rebuild => 1,
+    },
+    pandoc_rst => {
+        type => "boolean",
+        example => 0,
+        description => "Enable Pandoc processing of reStructuredText documents",
+        safe => 0,
         rebuild => 1,
     },
     pandoc_smart => {
