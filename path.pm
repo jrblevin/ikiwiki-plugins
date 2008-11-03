@@ -46,6 +46,9 @@ sub pagetemplate (@) {
     # Final path indicator
     $var =~ s/^in/is/;
     $template->param("$var" => 1);
+
+    # Page name
+    $template->param("pagename" => $base);
 }
 
 1
@@ -64,7 +67,9 @@ bits of code in templates based on the path.
 
 Three types of variables are generated which indicate, respectively,
 the homepage, the inclusion of a page as a subpage of a particular
-path, and the exact path of the page.
+path, and the exact path of the page.  Additionally, the
+variable PAGENAME is populated with the base filename of the page
+(without extension).
 
 For the page index.mdwn, the template variables IS_HOMEPAGE and
 IN_ROOT, and IS_ROOT will be set.  For any other page in the root
