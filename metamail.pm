@@ -19,13 +19,6 @@ sub getsetup () {
             safe => 1,
             rebuild => undef,
         },
-        metamail_blosxom => {
-            type => "boolean",
-            example => 0,
-            description => "Assume a header without a colon is a title",
-            safe => 1,
-            rebuild => 1,
-        },
 }
 
 sub needsbuild (@) {
@@ -57,12 +50,6 @@ sub filter(@) {
         my ($key, $value);
         if ($header =~ m/:/) {
             ($key, $value) = split /:\s*/, $header, 2;
-        } else {
-            if ($config{metamail_blosxom}) {
-                # For Blosxom compatibility, assume a header without a : is a title
-                $key = 'title';
-                $value = $header;
-            }
         }
         chomp $value;
 
