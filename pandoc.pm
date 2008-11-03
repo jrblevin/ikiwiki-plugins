@@ -88,14 +88,20 @@ sub htmlize ($@) {
 
     error("Unable to open $command") unless $pid;
 
-    print PANDOC_OUT $params{content};
+    # Workaround for perl bug (#376329)
+    require Encode;
+    my $content = Encode::encode_utf8($params{content});
+
+    print PANDOC_OUT $content;
     close PANDOC_OUT;
 
     my @html = <PANDOC_IN>;
     close PANDOC_IN;
 
     waitpid $pid, 0;
-    return join('', @html);
+
+    $content = Encode::decode_utf8(join('', @html));
+    return $content;
 }
 
 1
