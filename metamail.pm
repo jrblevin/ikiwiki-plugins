@@ -44,6 +44,10 @@ sub filter(@) {
     eval q{use HTML::Entities};
 
     my ($head, $body) = split /\n\s*\n/, $content, 2;
+    unless ($head =~ m/:/) {
+        $head = '';
+        $body = $content;
+    }
 
     for my $header ( split /\n(?=\S)/, $head ) {
         # Split header into key/value
