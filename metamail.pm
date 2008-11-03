@@ -48,6 +48,8 @@ sub filter(@) {
     my $page = $params{page};
     my $content = $params{content};
 
+    eval q{use HTML::Entities};
+
     my ($head, $body) = split /\n\s*\n/, $content, 2;
 
     for my $header ( split /\n(?=\S)/, $head ) {
@@ -67,8 +69,24 @@ sub filter(@) {
         # Join multi-line headers
         $value =~ s/\n //g if $config{unfold_headers};
 
+	# Always decode, even if encoding later, since it might not be
+	# fully encoded.
+	$value = HTML::Entities::decode_entities($value);
+
         # Store the header
         $pagestate{$page}{metamail}{$key} = HTML::Entities::encode_numeric($value);
+
+        # Handle some special cases like the meta plugin
+	if ($key eq 'date') {
+            eval q{use Date::Parse};
+            if (! $@) {
+                my $time = str2time($value);
+                $IkiWiki::pagectime{$page} = $time if defined $time;
+            }
+	}
+	elsif ($key eq 'title' or $key eq 'guid' or $key eq 'author') {
+            $pagestate{$page}{meta}{$key} = HTML::Entities::encode_numeric($value);
+	}
     }
 
     return $body;
@@ -106,6 +124,9 @@ headers.  metamail expects pages to look like email messages: a
 collection of headers followed by an empty line and body text.
 Headers consist of a key (with no whitespace) followed by a colon and
 a value.
+
+For compatibility, the following variables will be passed to the meta
+plugin and handled as usual: title, author, date, guid.
 
 =head1 HISTORY
 
