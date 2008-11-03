@@ -1,7 +1,4 @@
 #!/usr/bin/perl
-#
-# Jason Blevins <jrblevin@sdf.lonestar.org>
-# Chapel Hill, October 22, 2008
 
 package IkiWiki::Plugin::h1title;
 
@@ -9,11 +6,8 @@ use warnings;
 use strict;
 use IkiWiki 2.00;
 
-my %title;
-
 sub import {
     hook(type => "filter", id => "h1title", call => \&filter);
-    hook(type => "pagetemplate", id => "h1title", call => \&pagetemplate);
 }
 
 sub filter(@) {
@@ -22,20 +16,9 @@ sub filter(@) {
     my $content = $params{content};
 
     if ($content =~ s/^\#[ \t]+(.*?)[ \t]*\#*\n//) {
-        $title{$page} = $1;
+        $pagestate{$page}{meta}{title} = $1;
     }
     return $content;
-}
-
-sub pagetemplate (@) {
-    my %params = @_;
-    my $page = $params{page};
-    my $template = $params{template};
-
-    if (exists $title{$page} && $template->query(name => "title")) {
-        $template->param(title => $title{$page});
-        $template->param(title_overridden => 1);
-    }
 }
 
 1
