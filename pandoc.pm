@@ -16,7 +16,7 @@ sub import {
          call => sub { htmlize("markdown", @_) });
     if ($config{pandoc_latex}) {
         hook(type => "htmlize", id => "tex",
-             call => sub { htmlize("latextex", @_) });
+             call => sub { htmlize("latex", @_) });
     }
     if ($config{pandoc_rst}) {
         hook(type => "htmlize", id => "rst",
