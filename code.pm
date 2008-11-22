@@ -54,7 +54,7 @@ sub highlight (@) {
     }
 
     my $pid = open2(*SPS_IN, *SPS_OUT, $command,
-                    '--css', '--no-doc',
+                    '--css', '--no-doc', '--no-doc',
                     '-s', $params{language}, 
                     '-f', 'html',
                     @args);
