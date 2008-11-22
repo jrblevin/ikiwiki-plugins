@@ -60,7 +60,8 @@ sub htmlize ($@) {
     local(*IN, *OUT);
     my @args;
 
-    my $command = $config{pandoc_command} || "/usr/bin/pandoc";
+    my $command = $config{peg_markdown_command}
+      || "/usr/local/bin/peg-markdown";
 
     # Extensions
     if ($config{peg_markdown_smart}) {
