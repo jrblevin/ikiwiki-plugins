@@ -6,7 +6,6 @@ use strict;
 use IkiWiki 2.00;
 use open qw{:utf8 :std};
 use File::Basename;
-use HTML::Entities;
 
 my $command = $config{code_command} || "/usr/bin/source-highlight";
 
