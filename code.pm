@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use IkiWiki 2.00;
 use open qw{:utf8 :std};
-use File::Basename;
+use File::Basename qw(fileparse);
 
 my $command = $config{code_command} || "/usr/bin/source-highlight";
 
