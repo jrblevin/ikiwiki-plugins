@@ -43,10 +43,11 @@ syntax-highlighting with a download link at the top.
 
 Consider the file `hello.pl`.  Given the example `code_languages` hash
 above, this file will be processed as `perl` code.  The URL to the
-resulting page will be `<BASE_URL>/hello.pl/` and the download link
-will point to the raw file at `<BASE_URL>/hello.pl/hello.pl`.  The file
-extension is kept in the page name to prevent conflicts with other
-source code files such as `hello.c`.
+resulting syntax-highlighted HTML page will be `<BASE_URL>/hello.pl/`
+and the download link will point to the raw file at
+`<BASE_URL>/hello.pl/hello.pl`.  The file extension is kept in the
+page name to prevent conflicts with other source code files such as
+`hello.c`.
 
 
 ## Preprocessor directive
