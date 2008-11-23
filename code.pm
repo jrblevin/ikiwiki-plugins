@@ -31,7 +31,7 @@ sub save_unmodified_copy (@) {
 
     will_render($page, $destfile);
     writefile("$page/$destfile", $config{destdir}, $content);
-	
+
     return $destfile;
 }
 
@@ -65,7 +65,7 @@ sub highlight (@) {
 
     my @html = <SPS_IN>;
     close SPS_IN;
-    
+
     waitpid $pid, 0;
     return @html;
 }
