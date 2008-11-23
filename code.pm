@@ -48,16 +48,22 @@ sub highlight (@) {
 
     my @args;
 
+    # If the number="yes" is used in the preprocessor directive,
+    # request line numbering and use spaces instead of zero padding
+    # for the numbers.
     if ($params{number} and $params{number} eq "yes") {
         push @args, '--line-number= ';
     }
 
-    my $pid = open2(*SPS_IN, *SPS_OUT, $command,
-                    '--css', '--no-doc', '--no-doc',
-                    '-s', $params{language}, 
-                    '-f', 'html',
-                    @args);
+    # Give a nonexistent css file to enable CSS-stylable output but
+    # also request an HTML fragment without a header or footer.
+    push @args, '--css', 'foo.css', '--no-doc';
 
+    # Specify the Source language and output Format.
+    push @args, '-s', $params{language}, '-f', 'html';
+
+    # Open a bi-directional pipe with source-highlight.
+    my $pid = open2(*SPS_IN, *SPS_OUT, $command, @args);
     error("Unable to open $command") unless $pid;
 
     print SPS_OUT $params{content};
