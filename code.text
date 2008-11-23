@@ -32,6 +32,9 @@ Place the following in your `ikiwiki.setup` file:
         xml => xml,
     },
 
+If you do not specify `code_command`, it defaults to
+`/usr/bin/source-highlight`.
+
 The hash `code_languages` maps file extensions to GNU source-highlight
 language names.  This controls which file extensions are rendered as
 HTML for whole source file processing.  Files with matching extensions
