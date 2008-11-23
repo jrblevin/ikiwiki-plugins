@@ -24,7 +24,6 @@ Place the following in your `ikiwiki.setup` file:
         f77 => fixed-fortran,
         f90 => fortran,
         tex => latex,
-        makefile,
         pl => perl,
         py => python,
         rb => ruby,
